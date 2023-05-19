@@ -24,10 +24,6 @@ class ApiService {
       debugPrint('Response: ${data['rates']}');
       data['rates'].forEach((date, rates) {
         final double rate = rates[targetCurrency];
-        debugPrint('rate: ${rate}');
-        debugPrint('date: $date');
-        debugPrint('bc: $baseCurrency');
-        debugPrint('tc: $targetCurrency');
         conversions.add(CurrencyConversion(
           date: date.toString(),
           baseCurrency: baseCurrency,
@@ -35,6 +31,7 @@ class ApiService {
           rate: rate.toString(),
         ));
       });
+      print(conversions);
       return conversions;
     } else {
       throw Exception('Failed to fetch currency conversions');

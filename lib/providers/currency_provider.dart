@@ -8,9 +8,12 @@ class CurrencyProvider extends ChangeNotifier {
   List<CurrencyConversion> _currencyConversions = [];
   String onChangeStartDate = '';
   String onChangeEndDate = '';
-  final TextEditingController baseCurrencyController = TextEditingController();
-  final TextEditingController targetCurrencyController =
-      TextEditingController();
+
+  String selectedBaseCurrency = 'USD';
+  String selectedTargetCurrency = 'EUR';
+
+  final List<String> _availableCurrencies = ['USD', 'EUR', 'GBP', 'JPY'];
+
   int _startIndex = 0;
   final int _perPage = 10;
 
@@ -22,6 +25,9 @@ class CurrencyProvider extends ChangeNotifier {
       _startIndex + _perPage,
     );
   }
+
+  List<String> get availableCurrencies => _availableCurrencies;
+// Add more currencies as needed
 
   Future<void> fetchCurrencyConversions({
     required String startDate,

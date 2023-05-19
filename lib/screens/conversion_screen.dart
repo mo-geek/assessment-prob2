@@ -47,12 +47,40 @@ class _ConversionScreenState extends State<ConversionScreen> {
               currencyProvider.onChangeEndDate = val;
             }),
           ),
-          TextField(
-            controller: currencyProvider.baseCurrencyController,
-            decoration: const InputDecoration(labelText: 'Base Currency'),
+          DropdownButtonFormField<String>(
+            value: currencyProvider.selectedBaseCurrency,
+            onChanged: (newValue) {
+              setState(() {
+                currencyProvider.selectedBaseCurrency = newValue!;
+              });
+            },
+            items: currencyProvider.availableCurrencies
+                .map<DropdownMenuItem<String>>(
+              (currency) {
+                return DropdownMenuItem<String>(
+                  value: currency,
+                  child: Text(currency),
+                );
+              },
+            ).toList(),
+            decoration: InputDecoration(labelText: 'Base Currency'),
           ),
-          TextField(
-            controller: currencyProvider.targetCurrencyController,
+          DropdownButtonFormField<String>(
+            value: currencyProvider.selectedTargetCurrency,
+            onChanged: (newValue) {
+              setState(() {
+                currencyProvider.selectedTargetCurrency = newValue!;
+              });
+            },
+            items: currencyProvider.availableCurrencies
+                .map<DropdownMenuItem<String>>(
+              (currency) {
+                return DropdownMenuItem<String>(
+                  value: currency,
+                  child: Text(currency),
+                );
+              },
+            ).toList(),
             decoration: const InputDecoration(labelText: 'Target Currency'),
           ),
           const SizedBox(height: 16.0),
@@ -60,9 +88,8 @@ class _ConversionScreenState extends State<ConversionScreen> {
             onPressed: () {
               final startDate = currencyProvider.onChangeStartDate;
               final endDate = currencyProvider.onChangeEndDate;
-              final baseCurrency = currencyProvider.baseCurrencyController.text;
-              final targetCurrency =
-                  currencyProvider.targetCurrencyController.text;
+              final baseCurrency = currencyProvider.selectedBaseCurrency;
+              final targetCurrency = currencyProvider.selectedTargetCurrency;
 
               currencyProvider.fetchCurrencyConversions(
                 startDate: startDate,

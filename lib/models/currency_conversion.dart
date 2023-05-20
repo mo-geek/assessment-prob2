@@ -2,7 +2,7 @@ class CurrencyConversion {
   final String date;
   final String baseCurrency;
   final String targetCurrency;
-  final String rate;
+  final double rate;
 
   CurrencyConversion({
     required this.date,

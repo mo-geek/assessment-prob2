@@ -63,7 +63,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
                 );
               },
             ).toList(),
-            decoration: InputDecoration(labelText: 'Base Currency'),
+            decoration: const InputDecoration(labelText: 'Base Currency'),
           ),
           DropdownButtonFormField<String>(
             value: currencyProvider.selectedTargetCurrency,
@@ -84,49 +84,38 @@ class _ConversionScreenState extends State<ConversionScreen> {
             decoration: const InputDecoration(labelText: 'Target Currency'),
           ),
           const SizedBox(height: 16.0),
-          ElevatedButton(
-            onPressed: () {
-              final startDate = currencyProvider.onChangeStartDate;
-              final endDate = currencyProvider.onChangeEndDate;
-              final baseCurrency = currencyProvider.selectedBaseCurrency;
-              final targetCurrency = currencyProvider.selectedTargetCurrency;
+          currencyProvider.state
+              ? const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [CircularProgressIndicator()],
+                )
+              : ElevatedButton(
+                  onPressed: () {
+                    final startDate = currencyProvider.onChangeStartDate;
+                    final endDate = currencyProvider.onChangeEndDate;
+                    final baseCurrency = currencyProvider.selectedBaseCurrency;
+                    final targetCurrency =
+                        currencyProvider.selectedTargetCurrency;
 
-              currencyProvider.fetchCurrencyConversions(
-                startDate: startDate,
-                endDate: endDate,
-                baseCurrency: baseCurrency,
-                targetCurrency: targetCurrency,
-              );
-            },
-            child: const Text('Submit Conversions'),
-          ),
-          const SizedBox(height: 16.0),
-          if (currencyProvider.currencyConversions.isNotEmpty)
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: currencyProvider.currencyConversions.length,
-              itemBuilder: (context, index) {
-                final conversion = currencyProvider.currencyConversions[index];
-                return ListTile(
-                  title: Text('Date: ${conversion.date}'),
-                  subtitle: Text(
-                    '1 ${conversion.baseCurrency} = ${conversion.rate} ${conversion.targetCurrency}',
-                  ),
-                );
-              },
-            ),
+                    currencyProvider.fetchCurrencyConversions(
+                      startDate: startDate,
+                      endDate: endDate,
+                      baseCurrency: baseCurrency,
+                      targetCurrency: targetCurrency,
+                    );
+                  },
+                  child: const Text('Submit Conversions'),
+                ),
           const SizedBox(height: 16.0),
           if (currencyProvider.currencyConversions.isNotEmpty)
             Consumer<CurrencyProvider>(
               builder: (context, provider, _) {
-                final currentPageItems = provider.getCurrentPageItems();
                 return ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: currentPageItems.length,
-                  itemBuilder: (context, index) {
-                    final item = currentPageItems[index];
+                  itemCount: currencyProvider.currencyConversions.length,
+                  itemBuilder: (BuildContext context, index) {
+                    final item = currencyProvider.currencyConversions[index];
                     return ListTile(
                       title: Text('Date: ${item.date}'),
                       subtitle: Text(
@@ -137,18 +126,19 @@ class _ConversionScreenState extends State<ConversionScreen> {
                 );
               },
             ),
-          Column(
-            children: [
-              ElevatedButton(
-                onPressed: currencyProvider.previousPage,
-                child: const Text('Previous Page'),
-              ),
-              ElevatedButton(
-                onPressed: currencyProvider.nextPage,
-                child: const Text('Next Page'),
-              ),
-            ],
-          ),
+          if (currencyProvider.currencyConversions.isNotEmpty)
+            Column(
+              children: [
+                ElevatedButton(
+                  onPressed: currencyProvider.previousPage,
+                  child: const Text('Previous Page'),
+                ),
+                ElevatedButton(
+                  onPressed: currencyProvider.nextPage,
+                  child: const Text('Next Page'),
+                ),
+              ],
+            ),
         ],
       ),
     );

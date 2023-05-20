@@ -4,30 +4,31 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 class CurrencyProvider extends ChangeNotifier {
+  bool state = false;
   final ApiService apiService = ApiService();
-  List<CurrencyConversion> _currencyConversions = [];
+  List<CurrencyConversion> _referenceList = [];
+  List<CurrencyConversion> _currencyConversionsList = [];
   String onChangeStartDate = '';
   String onChangeEndDate = '';
 
   String selectedBaseCurrency = 'USD';
   String selectedTargetCurrency = 'EUR';
 
-  final List<String> _availableCurrencies = ['USD', 'EUR', 'GBP', 'JPY'];
+  final List<String> _availableCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'EGP'];
 
-  int _startIndex = 0;
-  final int _perPage = 10;
+  int _currentPage = 1;
+  final int _itemsPerPage = 10;
+  int _totalItems = 0;
 
-  List<CurrencyConversion> get currencyConversions => _currencyConversions;
+  int get totalItems => _totalItems;
+
+  List<CurrencyConversion> get currencyConversions => _currencyConversionsList;
 
   List<CurrencyConversion> getCurrentPageItems() {
-    return _currencyConversions.sublist(
-      _startIndex,
-      _startIndex + _perPage,
-    );
+    return paginate();
   }
 
   List<String> get availableCurrencies => _availableCurrencies;
-// Add more currencies as needed
 
   Future<void> fetchCurrencyConversions({
     required String startDate,
@@ -35,36 +36,49 @@ class CurrencyProvider extends ChangeNotifier {
     required String baseCurrency,
     required String targetCurrency,
   }) async {
-    debugPrint('startDate: $startDate ');
-    debugPrint('endDate: $endDate ');
-    debugPrint('baseCurrency: $baseCurrency ');
-    debugPrint('targetCurrency: $targetCurrency ');
+    state = true;
+    notifyListeners();
     try {
-      _currencyConversions = await apiService.fetchCurrencyConversions(
+      _currencyConversionsList = await apiService.fetchCurrencyConversions(
         startDate: startDate,
         endDate: endDate,
         baseCurrency: baseCurrency,
         targetCurrency: targetCurrency,
       );
-      print("currency conversion list: $_currencyConversions");
-      _startIndex = 0;
-      notifyListeners();
+
+      _currentPage = 1;
+      _totalItems = _currencyConversionsList.length;
+      _referenceList = _currencyConversionsList;
+      _currencyConversionsList = paginate();
     } catch (error) {
-      // Handle error
+      debugPrint(error.toString());
     }
+    state = false;
+    notifyListeners();
   }
 
   void nextPage() {
-    if (_startIndex + _perPage < _currencyConversions.length) {
-      _startIndex += _perPage;
+    debugPrint('nextPage');
+    final maxPage = (_totalItems / _itemsPerPage).ceil();
+    if (_currentPage < maxPage) {
+      _currentPage++;
+      _currencyConversionsList = paginate();
       notifyListeners();
     }
   }
 
   void previousPage() {
-    if (_startIndex - _perPage >= 0) {
-      _startIndex -= _perPage;
+    debugPrint('previousPage');
+    if (_currentPage > 1) {
+      _currentPage--;
+      _currencyConversionsList = paginate();
       notifyListeners();
     }
+  }
+
+  List<CurrencyConversion> paginate() {
+    debugPrint('paginate');
+    final startIndex = (_currentPage - 1) * _itemsPerPage;
+    return _referenceList.skip(startIndex).take(_itemsPerPage).toList();
   }
 }

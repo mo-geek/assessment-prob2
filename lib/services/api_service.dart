@@ -14,7 +14,7 @@ class ApiService {
   }) async {
     final url =
         '$baseUrl/timeseries?start_date=$startDate&end_date=$endDate&base=$baseCurrency&symbols=$targetCurrency';
-    print(url);
+    debugPrint(url);
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -23,15 +23,16 @@ class ApiService {
       final List<CurrencyConversion> conversions = [];
       debugPrint('Response: ${data['rates']}');
       data['rates'].forEach((date, rates) {
-        final double rate = rates[targetCurrency];
-        conversions.add(CurrencyConversion(
-          date: date.toString(),
-          baseCurrency: baseCurrency,
-          targetCurrency: targetCurrency,
-          rate: rate.toString(),
-        ));
+        final double? rate = rates[targetCurrency];
+        if (rate != null) {
+          conversions.add(CurrencyConversion(
+            date: date.toString(),
+            baseCurrency: baseCurrency,
+            targetCurrency: targetCurrency,
+            rate: rate,
+          ));
+        }
       });
-      print(conversions);
       return conversions;
     } else {
       throw Exception('Failed to fetch currency conversions');
